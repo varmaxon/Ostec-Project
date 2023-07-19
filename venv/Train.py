@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import os
 from scipy.signal import savgol_filter
 from statistics import fmean, stdev
+from tqdm import tqdm
 
 
 class LogFiles(object):
@@ -25,12 +26,14 @@ class LogFiles(object):
                     cnt_check += 1
         except:
             print("ERROR: ошибка при инициализации объекта LofFiles")
+            input()
             exit()
 
         if cnt_check == 4:
             print("Необходимые файлы найдены: Temperature0.txt, Current0.txt, Voltage0.txt, Pressure0.txt")
         else:
             print("ERROR: не все файлы были найдены")
+            input()
             exit()
 
     def get_file_temp(self):
@@ -95,6 +98,7 @@ class DFrame(object):
                 Time_ms_index = i
         if (I_index < 0) or (U_index < 0) or (Time_ms_index < 0):
             print("ERROR: index of column < 0")
+            input()
             exit()
 
 
@@ -134,6 +138,7 @@ class DFrame(object):
                     len(self.df_P2_T1), len(self.df_P2_T2), len(self.df_P2_T3), len(self.df_P2_T4), len(self.df_P2_T8),
                     len(self.df_P3_T1), len(self.df_P3_T2), len(self.df_P3_T3), len(self.df_P3_T4), len(self.df_P3_T8)])) != 1:
             print("ERROR: the lengths of 'Pi_Ti' don't match")
+            input()
             exit()
 
         self.df_P1_Pr = pd.merge(crossing_IU_1, df_Pr, how='inner', on=['Time_ms']).drop(columns=['Validity', 'TimeString', 'VarName']).rename(columns={"VarValue": "Pressure"})
@@ -142,6 +147,7 @@ class DFrame(object):
 
         if len(set([len(self.df_P1_Pr), len(self.df_P2_Pr), len(self.df_P3_Pr)])) != 1:
             print("ERROR: the lengths of 'Pi_Pr' don't match")
+            input()
             exit()
 
         dif = len(self.df_P1_Pr) - len(self.df_P1_T1)
@@ -161,6 +167,7 @@ class DFrame(object):
 
         if len(self.df_P1_Pr) != len(self.df_P1_T1):
             print("ERROR: the lengths of 'P1_Pr & P1_T1' don't match")
+            input()
             exit()
 
         print("ДатаФреймы сформированы")
@@ -217,25 +224,16 @@ class Calculations(DFrame):
         self.df_periods['Период (№)'] = range(1, len(periods) + 1)
         self.df_periods['Длительность (мин)'] = length_time
         self.df_periods['Tmax (℃)'] = temp_max
-        # df_periods['Границы (мс)'] = periods
+        self.df_periods['Границы (мс)'] = periods
         self.df_periods['Служ.инф.'] = periods_k
-        print(self.df_periods)
+        print("\nИнформация о включениях:")
+        print(self.df_periods.to_string())
 
     def find_sigma(self):
         self.result_pieces = self.__complete_pieces()
         self.__spline()
         result_derivate = self.__calc_derivate()
 
-        cnt_green = 0
-        cnt_ost = 0
-
-        for i in result_derivate[5][2]:
-            if -1.5239036539100155 - 56.718638147904045 <= i <= -1.5239036539100155 + 56.718638147904045:
-                cnt_green += 1
-            else:
-                cnt_ost += 1
-        print(cnt_green, cnt_ost)
-        exit()
 
         temp_1_mu_sigma = []
         temp_2_mu_sigma = []
@@ -254,24 +252,47 @@ class Calculations(DFrame):
                 temp_3_mu_sigma.append([fmean(result_derivate[2][i]), stdev(result_derivate[2][i])])
                 temp_4_mu_sigma.append([fmean(result_derivate[3][i]), stdev(result_derivate[3][i])])
                 temp_8_mu_sigma.append([fmean(result_derivate[4][i]), stdev(result_derivate[4][i])])
-
                 power_1_mu_sigma.append([fmean(result_derivate[5][i]), stdev(result_derivate[5][i])])
                 power_2_mu_sigma.append([fmean(result_derivate[6][i]), stdev(result_derivate[6][i])])
                 power_3_mu_sigma.append([fmean(result_derivate[7][i]), stdev(result_derivate[7][i])])
-
                 pressure_mu_sigma.append([fmean(result_derivate[8][i]), stdev(result_derivate[8][i])])
+            else:
+                temp_1_mu_sigma.append([0, 0])
+                temp_2_mu_sigma.append([0, 0])
+                temp_3_mu_sigma.append([0, 0])
+                temp_4_mu_sigma.append([0, 0])
+                temp_8_mu_sigma.append([0, 0])
+                power_1_mu_sigma.append([0, 0])
+                power_2_mu_sigma.append([0, 0])
+                power_3_mu_sigma.append([0, 0])
+                pressure_mu_sigma.append([0, 0])
 
-        print(temp_1_mu_sigma)
-        print(temp_2_mu_sigma)
-        print(temp_3_mu_sigma)
-        print(temp_4_mu_sigma)
-        print(temp_8_mu_sigma)
-        print(power_1_mu_sigma)
-        print(power_2_mu_sigma)
-        print(power_3_mu_sigma)
-        print(pressure_mu_sigma)
+        try:
+            df_result_train = pd.DataFrame()
 
+            df_result_train['Ranges'] = ['0-200', '200-400', '400-600', '600-800', '800-1000', '1000-1200',
+                                         '1200-1400', '1400-1600', '1600-1800', '1800+']
+            df_result_train['T1'] = temp_1_mu_sigma
+            df_result_train['T2'] = temp_2_mu_sigma
+            df_result_train['T3'] = temp_3_mu_sigma
+            df_result_train['T4'] = temp_4_mu_sigma
+            df_result_train['T8'] = temp_8_mu_sigma
+            df_result_train['P1'] = power_1_mu_sigma
+            df_result_train['P2'] = power_2_mu_sigma
+            df_result_train['P3'] = power_3_mu_sigma
+            df_result_train['Pressure'] = pressure_mu_sigma
+        except:
+            print("ERROR: ошибка в формировании датафрейма-результата")
+            input()
+            exit()
 
+        try:
+            cur_dir = os.path.abspath(os.curdir)
+            df_result_train.to_csv(f"{cur_dir}\Result_Train.csv", columns = df_result_train.columns, index=False)
+        except:
+            print("ERROR: ошибка записи датафрейма в файл Result_Train.csv")
+            input()
+            exit()
 
     def __complete_pieces(self):
         temp_ust = [[], [], [], [], [], [], [], [], [], []]
@@ -287,9 +308,9 @@ class Calculations(DFrame):
 
         index = -1
 
+        print(f"Обработка данных {len(self.df_periods)} периодов")
         for period in self.df_periods['Служ.инф.']:
-            print(period)
-            for i in range(period[0], period[1]):
+            for i in tqdm(range(period[0], period[1])):
                 value_ust = self.df_T_u.values[i][2]
 
                 if 0 <= value_ust < 200:
@@ -369,13 +390,13 @@ class Calculations(DFrame):
             power_1_derivate, power_2_derivate, power_3_derivate, pressure_derivate
 
 
-
-
-
-# log_path = input()
-log_path = r'C:\Users\user\Desktop\Ostec\log\2logs'
+log_path = input("Введите путь к папке с Лог-Файлами:  ")
+# log_path = r'C:\Users\user\Desktop\Ostec\log\2logs'
 
 log_files = LogFiles(log_path)
 
 calc = Calculations(log_files)
 calc.find_sigma()
+
+print("\nПоиск границ завершен. Результат записан в файл Result_Train.csv")
+input()
