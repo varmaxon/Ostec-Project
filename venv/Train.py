@@ -5,7 +5,8 @@ import os
 from scipy.signal import savgol_filter
 from statistics import fmean, stdev
 from tqdm import tqdm
-
+from tkinter import *
+from tkinter import ttk
 
 class LogFiles(object):
     def __init__(self, path):
@@ -162,8 +163,22 @@ class DFrame(object):
             else:
                 self.df_P1_T1 = self.df_P1_T1[:0 - dif]
 
+        dif = len(self.df_T_u) - len(self.df_P1_T1)
+        if dif > 0:
+            if self.df_T_u.values[0][0] != self.df_P1_T1.values[0][0]:
+                self.df_T_u = self.df_T_u[dif:]
+            else:
+                self.df_T_u = self.df_T_u[:0 - dif]
+        elif dif < 0:
+            if self.df_T_u.values[0][0] != self.df_P1_T1.values[0][0]:
+                self.df_P1_T1 = self.df_P1_T1[dif:]
+            else:
+                self.df_P1_T1 = self.df_P1_T1[:0 - dif]
+
         # print(self.df_P1_Pr)
         # print(self.df_P1_T1)
+        # print(self.df_T_u.columns)
+        # exit()
 
         if len(self.df_P1_Pr) != len(self.df_P1_T1):
             print("ERROR: the lengths of 'P1_Pr & P1_T1' don't match")
@@ -308,7 +323,7 @@ class Calculations(DFrame):
 
         index = -1
 
-        print(f"Обработка данных {len(self.df_periods)} периодов")
+        print(f"\nОбработка данных {len(self.df_periods)} периодов")
         for period in self.df_periods['Служ.инф.']:
             for i in tqdm(range(period[0], period[1])):
                 value_ust = self.df_T_u.values[i][2]
@@ -374,11 +389,21 @@ class Calculations(DFrame):
 
         for pie in range(len(temp_1_derivate)):
             for i in range(1, len(self.result_pieces[1][pie])):
-                temp_1_derivate[pie].append(self.result_pieces[1][pie][i] - self.result_pieces[1][pie][i - 1])
-                temp_2_derivate[pie].append(self.result_pieces[2][pie][i] - self.result_pieces[2][pie][i - 1])
-                temp_3_derivate[pie].append(self.result_pieces[3][pie][i] - self.result_pieces[3][pie][i - 1])
-                temp_4_derivate[pie].append(self.result_pieces[4][pie][i] - self.result_pieces[4][pie][i - 1])
-                temp_8_derivate[pie].append(self.result_pieces[5][pie][i] - self.result_pieces[5][pie][i - 1])
+                der1 = self.result_pieces[1][pie][i] - self.result_pieces[1][pie][i - 1]
+                if abs(der1) < 100:
+                    temp_1_derivate[pie].append(der1)
+                der2 = self.result_pieces[2][pie][i] - self.result_pieces[2][pie][i - 1]
+                if abs(der2) < 100:
+                    temp_2_derivate[pie].append(der2)
+                der3 = self.result_pieces[3][pie][i] - self.result_pieces[3][pie][i - 1]
+                if abs(der3) < 100:
+                    temp_3_derivate[pie].append(der3)
+                der4 = self.result_pieces[4][pie][i] - self.result_pieces[4][pie][i - 1]
+                if abs(der4) < 100:
+                    temp_4_derivate[pie].append(der4)
+                der5 = self.result_pieces[5][pie][i] - self.result_pieces[5][pie][i - 1]
+                if abs(der5) < 100:
+                    temp_8_derivate[pie].append(der5)
 
                 power_1_derivate[pie].append(self.result_pieces[6][pie][i] - self.result_pieces[6][pie][i - 1])
                 power_2_derivate[pie].append(self.result_pieces[7][pie][i] - self.result_pieces[7][pie][i - 1])
@@ -389,14 +414,260 @@ class Calculations(DFrame):
         return temp_1_derivate, temp_2_derivate, temp_3_derivate, temp_4_derivate, temp_8_derivate,\
             power_1_derivate, power_2_derivate, power_3_derivate, pressure_derivate
 
+    def show_graphics(self):
+        cur_dir = os.path.abspath(os.curdir)
+        df_result_train = pd.read_csv(cur_dir + '\Result_Train.csv', sep=',')
+        zones_values = [[[], [], [], [], []],
+                        [[], [], [], [], []],
+                        [[], [], [], [], []]]
+        zones_time  =  [[[], [], [], [], []],
+                        [[], [], [], [], []],
+                        [[], [], [], [], []]]
+        print("\nПреобразуем данные для графиков...")
+        for i in tqdm(range(len(self.df_T_u.values) - 1)):
+            k_T = []
 
-log_path = input("Введите путь к папке с Лог-Файлами:  ")
-# log_path = r'C:\Users\user\Desktop\Ostec\log\2logs'
+            k_T.append(self.df_P1_T1.values[i + 1][-1] - self.df_P1_T1.values[i][-1])
+            k_T.append(self.df_P1_T2.values[i + 1][-1] - self.df_P1_T2.values[i][-1])
+            k_T.append(self.df_P1_T3.values[i + 1][-1] - self.df_P1_T3.values[i][-1])
+            k_T.append(self.df_P1_T4.values[i + 1][-1] - self.df_P1_T4.values[i][-1])
+            k_T.append(self.df_P1_T8.values[i + 1][-1] - self.df_P1_T8.values[i][-1])
+
+            Temp = []
+            Time = []
+
+            Temp.append(self.df_P1_T1.values[i][-1])
+            Temp.append(self.df_P1_T2.values[i][-1])
+            Temp.append(self.df_P1_T3.values[i][-1])
+            Temp.append(self.df_P1_T4.values[i][-1])
+            Temp.append(self.df_P1_T8.values[i][-1])
+
+            Time.append(self.df_P1_T1.values[i][0])
+            Time.append(self.df_P1_T2.values[i][0])
+            Time.append(self.df_P1_T3.values[i][0])
+            Time.append(self.df_P1_T4.values[i][0])
+            Time.append(self.df_P1_T8.values[i][0])
+
+
+
+            # if 0 <= self.df_T_u['VarValue'].values[i]:
+            if self.df_T_u['VarValue'].values[i] < 200:
+                for termopara in range(1, 6):
+
+                    mu_T = float(df_result_train.values[0][termopara][df_result_train.values[0][termopara].find('[') + 1: df_result_train.values[0][termopara].find(',')])
+                    sigma_T = float(df_result_train.values[0][termopara][df_result_train.values[0][termopara].find(' ') + 1: df_result_train.values[0][termopara].find(']')])
+                    if mu_T - sigma_T <= k_T[termopara - 1] <= mu_T + sigma_T:
+                        zones_values[0][termopara - 1].append(Temp[termopara - 1])
+                        zones_time[0][termopara - 1].append(Time[termopara - 1])
+                    elif mu_T - sigma_T * 2 <= k_T[termopara - 1] <= mu_T + sigma_T * 2:
+                        zones_values[1][termopara - 1].append(Temp[termopara - 1])
+                        zones_time[1][termopara - 1].append(Time[termopara - 1])
+                    else:
+                        zones_values[2][termopara - 1].append(Temp[termopara - 1])
+                        zones_time[2][termopara - 1].append(Time[termopara - 1])
+
+            elif 200 <= self.df_T_u['VarValue'].values[i] < 400:
+                for termopara in range(1, 6):
+
+                    mu_T = float(df_result_train.values[1][termopara][df_result_train.values[1][termopara].find('[') + 1: df_result_train.values[1][termopara].find(',')])
+                    sigma_T = float(df_result_train.values[1][termopara][df_result_train.values[1][termopara].find(' ') + 1: df_result_train.values[1][termopara].find(']')])
+                    if mu_T - sigma_T <= k_T[termopara - 1] <= mu_T + sigma_T:
+                        zones_values[0][termopara - 1].append(Temp[termopara - 1])
+                        zones_time[0][termopara - 1].append(Time[termopara - 1])
+                    elif mu_T - sigma_T * 2 <= k_T[termopara - 1] <= mu_T + sigma_T * 2:
+                        zones_values[1][termopara - 1].append(Temp[termopara - 1])
+                        zones_time[1][termopara - 1].append(Time[termopara - 1])
+                    else:
+                        zones_values[2][termopara - 1].append(Temp[termopara - 1])
+                        zones_time[2][termopara - 1].append(Time[termopara - 1])
+
+            elif 400 <= self.df_T_u['VarValue'].values[i] < 600:
+                for termopara in range(1, 6):
+
+                    mu_T = float(df_result_train.values[2][termopara][df_result_train.values[2][termopara].find('[') + 1: df_result_train.values[2][termopara].find(',')])
+                    sigma_T = float(df_result_train.values[2][termopara][df_result_train.values[2][termopara].find(' ') + 1: df_result_train.values[2][termopara].find(']')])
+                    if mu_T - sigma_T <= k_T[termopara - 1] <= mu_T + sigma_T:
+                        zones_values[0][termopara - 1].append(Temp[termopara - 1])
+                        zones_time[0][termopara - 1].append(Time[termopara - 1])
+                    elif mu_T - sigma_T * 2 <= k_T[termopara - 1] <= mu_T + sigma_T * 2:
+                        zones_values[1][termopara - 1].append(Temp[termopara - 1])
+                        zones_time[1][termopara - 1].append(Time[termopara - 1])
+                    else:
+                        zones_values[2][termopara - 1].append(Temp[termopara - 1])
+                        zones_time[2][termopara - 1].append(Time[termopara - 1])
+
+            elif 600 <= self.df_T_u['VarValue'].values[i] < 800:
+                for termopara in range(1, 6):
+
+                    mu_T = float(df_result_train.values[3][termopara][df_result_train.values[3][termopara].find('[') + 1: df_result_train.values[3][termopara].find(',')])
+                    sigma_T = float(df_result_train.values[3][termopara][df_result_train.values[3][termopara].find(' ') + 1: df_result_train.values[3][termopara].find(']')])
+                    if mu_T - sigma_T <= k_T[termopara - 1] <= mu_T + sigma_T:
+                        zones_values[0][termopara - 1].append(Temp[termopara - 1])
+                        zones_time[0][termopara - 1].append(Time[termopara - 1])
+                    elif mu_T - sigma_T * 2 <= k_T[termopara - 1] <= mu_T + sigma_T * 2:
+                        zones_values[1][termopara - 1].append(Temp[termopara - 1])
+                        zones_time[1][termopara - 1].append(Time[termopara - 1])
+                    else:
+                        zones_values[2][termopara - 1].append(Temp[termopara - 1])
+                        zones_time[2][termopara - 1].append(Time[termopara - 1])
+
+            elif 800 <= self.df_T_u['VarValue'].values[i] < 1000:
+                for termopara in range(1, 6):
+
+                    mu_T = float(df_result_train.values[4][termopara][df_result_train.values[4][termopara].find('[') + 1: df_result_train.values[4][termopara].find(',')])
+                    sigma_T = float(df_result_train.values[4][termopara][df_result_train.values[4][termopara].find(' ') + 1: df_result_train.values[4][termopara].find(']')])
+                    if mu_T - sigma_T <= k_T[termopara - 1] <= mu_T + sigma_T:
+                        zones_values[0][termopara - 1].append(Temp[termopara - 1])
+                        zones_time[0][termopara - 1].append(Time[termopara - 1])
+                    elif mu_T - sigma_T * 2 <= k_T[termopara - 1] <= mu_T + sigma_T * 2:
+                        zones_values[1][termopara - 1].append(Temp[termopara - 1])
+                        zones_time[1][termopara - 1].append(Time[termopara - 1])
+                    else:
+                        zones_values[2][termopara - 1].append(Temp[termopara - 1])
+                        zones_time[2][termopara - 1].append(Time[termopara - 1])
+
+            elif 1000 <= self.df_T_u['VarValue'].values[i] < 1200:
+                for termopara in range(1, 6):
+
+                    mu_T = float(df_result_train.values[5][termopara][df_result_train.values[5][termopara].find('[') + 1: df_result_train.values[5][termopara].find(',')])
+                    sigma_T = float(df_result_train.values[5][termopara][df_result_train.values[5][termopara].find(' ') + 1: df_result_train.values[5][termopara].find(']')])
+                    if mu_T - sigma_T <= k_T[termopara - 1] <= mu_T + sigma_T:
+                        zones_values[0][termopara - 1].append(Temp[termopara - 1])
+                        zones_time[0][termopara - 1].append(Time[termopara - 1])
+                    elif mu_T - sigma_T * 2 <= k_T[termopara - 1] <= mu_T + sigma_T * 2:
+                        zones_values[1][termopara - 1].append(Temp[termopara - 1])
+                        zones_time[1][termopara - 1].append(Time[termopara - 1])
+                    else:
+                        zones_values[2][termopara - 1].append(Temp[termopara - 1])
+                        zones_time[2][termopara - 1].append(Time[termopara - 1])
+
+            elif 1200 <= self.df_T_u['VarValue'].values[i] < 1400:
+                for termopara in range(1, 6):
+
+                    mu_T = float(df_result_train.values[6][termopara][df_result_train.values[6][termopara].find('[') + 1: df_result_train.values[6][termopara].find(',')])
+                    sigma_T = float(df_result_train.values[6][termopara][df_result_train.values[6][termopara].find(' ') + 1: df_result_train.values[6][termopara].find(']')])
+                    if mu_T - sigma_T <= k_T[termopara - 1] <= mu_T + sigma_T:
+                        zones_values[0][termopara - 1].append(Temp[termopara - 1])
+                        zones_time[0][termopara - 1].append(Time[termopara - 1])
+                    elif mu_T - sigma_T * 2 <= k_T[termopara - 1] <= mu_T + sigma_T * 2:
+                        zones_values[1][termopara - 1].append(Temp[termopara - 1])
+                        zones_time[1][termopara - 1].append(Time[termopara - 1])
+                    else:
+                        zones_values[2][termopara - 1].append(Temp[termopara - 1])
+                        zones_time[2][termopara - 1].append(Time[termopara - 1])
+
+            elif 1400 <= self.df_T_u['VarValue'].values[i] < 1600:
+                for termopara in range(1, 6):
+
+                    mu_T = float(df_result_train.values[7][termopara][df_result_train.values[7][termopara].find('[') + 1: df_result_train.values[7][termopara].find(',')])
+                    sigma_T = float(df_result_train.values[7][termopara][df_result_train.values[7][termopara].find(' ') + 1: df_result_train.values[7][termopara].find(']')])
+                    if mu_T - sigma_T <= k_T[termopara - 1] <= mu_T + sigma_T:
+                        zones_values[0][termopara - 1].append(Temp[termopara - 1])
+                        zones_time[0][termopara - 1].append(Time[termopara - 1])
+                    elif mu_T - sigma_T * 2 <= k_T[termopara - 1] <= mu_T + sigma_T * 2:
+                        zones_values[1][termopara - 1].append(Temp[termopara - 1])
+                        zones_time[1][termopara - 1].append(Time[termopara - 1])
+                    else:
+                        zones_values[2][termopara - 1].append(Temp[termopara - 1])
+                        zones_time[2][termopara - 1].append(Time[termopara - 1])
+
+            elif 1600 <= self.df_T_u['VarValue'].values[i] < 1800:
+                for termopara in range(1, 6):
+
+                    mu_T = float(df_result_train.values[8][termopara][df_result_train.values[8][termopara].find('[') + 1: df_result_train.values[8][termopara].find(',')])
+                    sigma_T = float(df_result_train.values[8][termopara][df_result_train.values[8][termopara].find(' ') + 1: df_result_train.values[8][termopara].find(']')])
+                    if mu_T - sigma_T <= k_T[termopara - 1] <= mu_T + sigma_T:
+                        zones_values[0][termopara - 1].append(Temp[termopara - 1])
+                        zones_time[0][termopara - 1].append(Time[termopara - 1])
+                    elif mu_T - sigma_T * 2 <= k_T[termopara - 1] <= mu_T + sigma_T * 2:
+                        zones_values[1][termopara - 1].append(Temp[termopara - 1])
+                        zones_time[1][termopara - 1].append(Time[termopara - 1])
+                    else:
+                        zones_values[2][termopara - 1].append(Temp[termopara - 1])
+                        zones_time[2][termopara - 1].append(Time[termopara - 1])
+
+            else:
+                for termopara in range(1, 6):
+
+                    mu_T = float(df_result_train.values[9][termopara][df_result_train.values[9][termopara].find('[') + 1: df_result_train.values[9][termopara].find(',')])
+                    sigma_T = float(df_result_train.values[9][termopara][df_result_train.values[9][termopara].find(' ') + 1: df_result_train.values[9][termopara].find(']')])
+                    if mu_T - sigma_T <= k_T[termopara - 1] <= mu_T + sigma_T:
+                        zones_values[0][termopara - 1].append(Temp[termopara - 1])
+                        zones_time[0][termopara - 1].append(Time[termopara - 1])
+                    elif mu_T - sigma_T * 2 <= k_T[termopara - 1] <= mu_T + sigma_T * 2:
+                        zones_values[1][termopara - 1].append(Temp[termopara - 1])
+                        zones_time[1][termopara - 1].append(Time[termopara - 1])
+                    else:
+                        zones_values[2][termopara - 1].append(Temp[termopara - 1])
+                        zones_time[2][termopara - 1].append(Time[termopara - 1])
+
+
+
+        # period = input("\nВыберите период, на котором хотите построить график: ")
+        # while (not period.isdigit()) or (period > str(len(self.df_periods))):
+        #     period = input("\nВыберите период, на котором хотите построить график: ")
+        # period = int(period)
+
+        # begin = self.df_periods['Служ.инф.'].values[period - 1][0]
+        # end = self.df_periods['Служ.инф.'].values[period - 1][1]
+
+
+        # plt.figure(figsize=(1000, 600))
+
+        plt.plot(self.df_P1_T1['Time_ms'].values[:], self.df_P1_T1['T'].values[:], color='black', linewidth=1, label="Literacy rate")
+        # plt.plot(self.df_P1_T2['Time_ms'].values[:], self.df_P1_T2['T'].values[:], color='black', linewidth=2, label="Literacy rate")
+        # plt.plot(self.df_P1_T3['Time_ms'].values[:], self.df_P1_T3['T'].values[:], color='black', linewidth=2, label="Literacy rate")
+        # plt.plot(self.df_P1_T4['Time_ms'].values[:], self.df_P1_T4['T'].values[:], color='black', linewidth=2, label="Literacy rate")
+        # plt.plot(self.df_P1_T8['Time_ms'].values[:], self.df_P1_T8['T'].values[:], color='black', linewidth=2, label="Literacy rate")
+
+        plt.scatter(zones_time[0][0][:], zones_values[0][0][:], color='green', linewidths=1)
+        # plt.scatter(zones_time[0][1][:], zones_values[0][1][:], color='green', linewidths=5)
+        # plt.scatter(zones_time[0][2][:], zones_values[0][2][:], color='green', linewidths=5)
+        # plt.scatter(zones_time[0][3][:], zones_values[0][3][:], color='green', linewidths=5)
+        # plt.scatter(zones_time[0][4][:], zones_values[0][4][:], color='green', linewidths=5)
+
+        plt.scatter(zones_time[1][0][:], zones_values[1][0][:], color='yellow', linewidths=1)
+        # plt.scatter(zones_time[1][1][:], zones_values[1][1][:], color='yellow', linewidths=5)
+        # plt.scatter(zones_time[1][2][:], zones_values[1][2][:], color='yellow', linewidths=5)
+        # plt.scatter(zones_time[1][3][:], zones_values[1][3][:], color='yellow', linewidths=5)
+        # plt.scatter(zones_time[1][4][:], zones_values[1][4][:], color='yellow', linewidths=5)
+
+        plt.scatter(zones_time[2][0][:], zones_values[2][0][:], color='red', linewidths=1)
+        # plt.scatter(zones_time[2][1][:], zones_values[2][1][:], color='red', linewidths=5)
+        # plt.scatter(zones_time[2][2][:], zones_values[2][2][:], color='red', linewidths=5)
+        # plt.scatter(zones_time[2][3][:], zones_values[2][3][:], color='red', linewidths=5)
+        # plt.scatter(zones_time[2][4][:], zones_values[2][4][:], color='red', linewidths=5)
+
+        plt.show()
+
+            # k_P1 = self.df_P1_T1.values[i + 1][-2] - self.df_P1_T1.values[i][-2]
+            # k_P2 = self.df_P2_T1.values[i + 1][-2] - self.df_P2_T1.values[i][-2]
+            # k_P3 = self.df_P3_T1.values[i + 1][-2] - self.df_P3_T1.values[i][-2]
+            # k_Pr = self.df_P1_Pr.values[i + 1][-1] - self.df_P1_Pr.values[i][-1]
+
+
+
+
+
+# cur_dir = os.path.abspath(os.curdir)
+# df_result_train = pd.read_csv(cur_dir + '\Result_Train.csv', sep=',')
+# print(df_result_train.to_string())
+
+# print(mu_T1, sigma_T1)
+# print(df_result_train[0][1][df_result_train.values[0][1].find('[') + 1 : df_result_train[0][1].find(',')])
+# exit()
+
+
+
+
+# log_path = input("Введите путь к папке с Лог-Файлами:  ")
+log_path = r'C:\Users\user\Desktop\Ostec\log\2logs'
 
 log_files = LogFiles(log_path)
 
 calc = Calculations(log_files)
 calc.find_sigma()
+calc.show_graphics()
 
 print("\nПоиск границ завершен. Результат записан в файл Result_Train.csv")
 input()
