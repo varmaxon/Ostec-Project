@@ -62,7 +62,7 @@ class Manager:
                 title='Ошибка',
                 message=f'Ошибка при запуске бота:\n{error}'
             )
-            return
+
 
         self.__train_file = train_file_name
         df_result_train = pd.read_csv(self.__train_file, sep=',')
@@ -231,7 +231,7 @@ class Manager:
                                         self.period = file_period.read().split(' ')[0]
                                     if t_pair != "PS4":
                                         for client in self.bot.array_id:
-                                            client[1].bot.send_message(chat_id=client[0].effective_chat.id,
+                                            client[0].send_message(chat_id=client[1],
                                                                        text=f"#W_{t_pair}_{self.period}_{self.id_message_w[item + 5]}\n"
                                                                             f"{date}\n"
                                                                             f"✅ <b>Warning canceled</b>: Мощность по датчику №{item + 1}\n"
@@ -250,7 +250,7 @@ class Manager:
 
                                     else:
                                         for client in self.bot.array_id:
-                                            client[1].bot.send_message(chat_id=client[0].effective_chat.id,
+                                            client[0].send_message(chat_id=client[1],
                                                                        text=f"#W_{t_pair}_{self.period}_{self.id_message_w[item + 5]}\n"
                                                                             f"{date}\n"
                                                                             f"✅ <b>Warning canceled</b>: Давление\n"
@@ -273,7 +273,7 @@ class Manager:
                                         self.period = file_period.read().split(' ')[0]
                                     if t_pair != "PS4":
                                         for client in self.bot.array_id:
-                                            client[1].bot.send_message(chat_id=client[0].effective_chat.id,
+                                            client[0].send_message(chat_id=client[1],
                                                                        text=f"#E_{t_pair}_{self.period}_{self.id_message_e[item + 5]}\n"
                                                                             f"{date}\n"
                                                                             f"✅ <b>Error canceled</b>: Мощность по датчику №{item + 1}\n"
@@ -293,7 +293,7 @@ class Manager:
 
                                     else:
                                         for client in self.bot.array_id:
-                                            client[1].bot.send_message(chat_id=client[0].effective_chat.id,
+                                            client[0].send_message(chat_id=client[1],
                                                                        text=f"#E_{t_pair}_{self.period}_{self.id_message_e[item + 5]}\n"
                                                                             f"{date}\n"
                                                                             f"✅ <b>Error canceled</b>: Давление\n"
@@ -317,7 +317,7 @@ class Manager:
                                         self.period = file_period.read().split(' ')[0]
                                     if t_pair != "PS4":
                                         for client in self.bot.array_id:
-                                            client[1].bot.send_message(chat_id=client[0].effective_chat.id,
+                                            client[0].send_message(chat_id=client[1],
                                                                        text=f"#W_{t_pair}_{self.period}_{self.id_message_w[item + 5]}\n"
                                                                             f"{date}\n"
                                                                             f"⚠ <b>Warning</b>: Мощность по датчику №{item + 1}\n"
@@ -337,7 +337,7 @@ class Manager:
 
                                     else:
                                         for client in self.bot.array_id:
-                                            client[1].bot.send_message(chat_id=client[0].effective_chat.id,
+                                            client[0].send_message(chat_id=client[1],
                                                                        text=f"#W_{t_pair}_{self.period}_{self.id_message_w[item + 5]}\n"
                                                                             f"{date}\n"
                                                                             f"⚠ <b>Warning</b>: Давление\n"
@@ -362,7 +362,7 @@ class Manager:
                                     self.period = file_period.read().split(' ')[0]
                                 if t_pair != "PS4":
                                     for client in self.bot.array_id:
-                                        client[1].bot.send_message(chat_id=client[0].effective_chat.id,
+                                        client[0].send_message(chat_id=client[1],
                                                                    text=f"#E_{t_pair}_{self.period}_{self.id_message_e[item + 5]}\n"
                                                                         f"{date}\n"
                                                                         f"❗ <b>Error</b>: Мощность по датчику №{item + 1}\n"
@@ -382,7 +382,7 @@ class Manager:
 
                                 else:
                                     for client in self.bot.array_id:
-                                        client[1].bot.send_message(chat_id=client[0].effective_chat.id,
+                                        client[0].send_message(chat_id=client[1],
                                                                    text=f"#E_{t_pair}_{self.period}_{self.id_message_e[item + 5]}\n"
                                                                         f"{date}\n"
                                                                         f"❗ <b>Error</b>: Давление\n"
@@ -410,7 +410,7 @@ class Manager:
                                         self.period = file_period.read().split(' ')[0]
                                     if t_pair != "PS4":
                                         for client in self.bot.array_id:
-                                            client[1].bot.send_message(chat_id=client[0].effective_chat.id,
+                                            client[0].send_message(chat_id=client[1],
                                                                        text=f"#W_{t_pair}_{self.period}_{self.id_message_w[item + 5]}\n"
                                                                             f"{date}\n"
                                                                             f"✅ <b>Warning canceled</b>: Мощность по датчику №{item + 1}\n"
@@ -430,7 +430,7 @@ class Manager:
 
                                     else:
                                         for client in self.bot.array_id:
-                                            client[1].bot.send_message(chat_id=client[0].effective_chat.id,
+                                            client[0].send_message(chat_id=client[1],
                                                                        text=f"#W_{t_pair}_{self.period}_{self.id_message_w[item + 5]}\n"
                                                                             f"{date}\n"
                                                                             f"✅ <b>Warning canceled</b>: Давление\n"
@@ -453,7 +453,7 @@ class Manager:
                                         self.period = file_period.read().split(' ')[0]
                                     if t_pair != "PS4":
                                         for client in self.bot.array_id:
-                                            client[1].bot.send_message(chat_id=client[0].effective_chat.id,
+                                            client[0].send_message(chat_id=client[1],
                                                                        text=f"#E_{t_pair}_{self.period}_{self.id_message_e[item + 5]}\n"
                                                                             f"{date}\n"
                                                                             f"✅ <b>Error canceled</b>: Мощность по датчику №{item + 1}\n"
@@ -473,7 +473,7 @@ class Manager:
 
                                     else:
                                         for client in self.bot.array_id:
-                                            client[1].bot.send_message(chat_id=client[0].effective_chat.id,
+                                            client[0].send_message(chat_id=client[1],
                                                                        text=f"#E_{t_pair}_{self.period}_{self.id_message_e[item + 5]}\n"
                                                                             f"{date}\n"
                                                                             f"✅ <b>Error canceled</b>: Давление\n"
@@ -497,7 +497,7 @@ class Manager:
                                         self.period = file_period.read().split(' ')[0]
                                     if t_pair != "PS4":
                                         for client in self.bot.array_id:
-                                            client[1].bot.send_message(chat_id=client[0].effective_chat.id,
+                                            client[0].send_message(chat_id=client[1],
                                                                        text=f"#W_{t_pair}_{self.period}_{self.id_message_w[item + 5]}\n"
                                                                             f"{date}\n"
                                                                             f"⚠ <b>Warning</b>: Мощность по датчику №{item + 1}\n"
@@ -517,7 +517,7 @@ class Manager:
 
                                     else:
                                         for client in self.bot.array_id:
-                                            client[1].bot.send_message(chat_id=client[0].effective_chat.id,
+                                            client[0].send_message(chat_id=client[1],
                                                                        text=f"#W_{t_pair}_{self.period}_{self.id_message_w[item + 5]}\n"
                                                                             f"{date}\n"
                                                                             f"⚠ <b>Warning</b>: Давление\n"
@@ -542,7 +542,7 @@ class Manager:
                                     self.period = file_period.read().split(' ')[0]
                                 if t_pair != "PS4":
                                     for client in self.bot.array_id:
-                                        client[1].bot.send_message(chat_id=client[0].effective_chat.id,
+                                        client[0].send_message(chat_id=client[1],
                                                                    text=f"#E_{t_pair}_{self.period}_{self.id_message_e[item + 5]}\n"
                                                                         f"{date}\n"
                                                                         f"❗ <b>Error</b>: Мощность по датчику №{item + 1}\n"
@@ -562,7 +562,7 @@ class Manager:
 
                                 else:
                                     for client in self.bot.array_id:
-                                        client[1].bot.send_message(chat_id=client[0].effective_chat.id,
+                                        client[0].send_message(chat_id=client[1],
                                                                    text=f"#E_{t_pair}_{self.period}_{self.id_message_e[item + 5]}\n"
                                                                         f"{date}\n"
                                                                         f"❗ <b>Error</b>: Давление\n"
@@ -633,7 +633,7 @@ class Manager:
                             with open(cur_dir + "\Period.txt", mode="r") as file_period:
                                 self.period = file_period.read().split(' ')[0]
                             for client in self.bot.array_id:
-                                client[1].bot.send_message(chat_id=client[0].effective_chat.id,
+                                client[0].send_message(chat_id=client[1],
                                                            text=f"#W_{t_pair}_{self.period}_{self.id_message_w[i]}\n"
                                                                 f"{date}\n"
                                                                 f"⚠ <b>Warning</b>: термопара №{i + 1}\n"
@@ -654,7 +654,7 @@ class Manager:
                         if not self.fl_e[i]:
                             self.id_message_e[i] += 1
                             for client in self.bot.array_id:
-                                client[1].bot.send_message(chat_id=client[0].effective_chat.id,
+                                client[0].send_message(chat_id=client[1],
                                                            text=f"#E_{t_pair}_{self.period}_{self.id_message_e[i]}\n"
                                                                 f"{date}\n"
                                                                 f"❗ <b>Error</b>: термопара №{i + 1}\n"
@@ -674,7 +674,7 @@ class Manager:
                     else:
                         if self.fl_w[i]:
                             for client in self.bot.array_id:
-                                client[1].bot.send_message(chat_id=client[0].effective_chat.id,
+                                client[0].send_message(chat_id=client[1],
                                                            text=f"#W_{t_pair}_{self.period}_{self.id_message_w[i]}\n"
                                                                 f"{date}\n"
                                                                 f"✅ <b>Warning canceled</b>: термопара №{i + 1}\n"
@@ -693,7 +693,7 @@ class Manager:
                             self.fl_w[i] = False
                         if self.fl_e[i]:
                             for client in self.bot.array_id:
-                                client[1].bot.send_message(chat_id=client[0].effective_chat.id,
+                                client[0].send_message(chat_id=client[1],
                                                            text=f"#E_{t_pair}_{self.period}_{self.id_message_e[i]}\n"
                                                                 f"{date}\n"
                                                                 f"✅ <b>Error</b>: термопара №{i + 1}\n"
@@ -777,7 +777,6 @@ class Bot:
         self.bot = telegram.Bot(token=TOKEN)
         self.updater = Updater(token=TOKEN, use_context=True)
         self.__dispatcher = self.updater.dispatcher
-
         self.array_id = []
         self.flag = False
         self.__start_markup = telegram.ReplyKeyboardMarkup.from_button(
@@ -789,23 +788,45 @@ class Bot:
 
     def get_text_messages(self, update, context):
         if update.message.text == 'Старт':
+            print(type(update.effective_chat.id))
             # if [update, context] not in self.array_id:
             if not self.flag:
-                self.array_id.append([update, context])
+                try:
+                    self.array_id = json.load(open('id_file_lines.txt', 'rb'))
+                except:
+                    open('id_file_lines.pkl', 'wb').close()
+
+                # if [context.bot, update.effective_chat.id] not in self.array_id:
+                    # self.array_id.append([context.bot, update.effective_chat.id])
+                    # self.array_id.append(context.bot)
+                json.dump(context.bot, open('id_file_lines.pkl', 'wb'))
                 context.bot.send_message(chat_id=update.effective_chat.id,
                                          text='Приложение запущено!',
                                          reply_markup=self.__start_markup)
                 self.flag = True
 
     def start(self, update, context):
+        # print(type(update.effective_chat.id))
+        # print(context.bot, update.effective_chat.id)
         # if [update, context] not in self.array_id:
         if not self.flag:
-            self.array_id.append([update, context])
+            try:
+                self.array_id = json.load(open('id_file_lines.pkl', 'rb'))
+            except:
+                open('id_file_lines.pkl', 'wb').close()
+
+
+            # if [context.bot, update.effective_chat.id] not in self.array_id:
+                # self.array_id.append([context.bot, update.effective_chat.id])
+
+                # json.dump(self.array_id, open('id_file_lines.pkl', 'wb'))
+            json.dump(context.bot, open('id_file_lines.pkl', 'wb'))
+
             context.bot.send_message(chat_id=update.effective_chat.id,
-                                     text='<b>Добро пожаловать в сервис для мониторинга состояния печи.</b>\n\n'
-                                          'Бот будет предупреждать о возможных авариях.',
-                                     parse_mode='HTML',
-                                     reply_markup=self.__start_markup)
+                                 text='<b>Добро пожаловать в сервис для мониторинга состояния печи.</b>\n\n'
+                                      'Бот будет предупреждать о возможных авариях.',
+                                 parse_mode='HTML',
+                                 reply_markup=self.__start_markup)
             self.flag = True
 
     def handler(self):
@@ -824,11 +845,11 @@ class App:
 
         self.__root.bind_all("<Key>", self._onKeyRelease, "+")
 
-        # self.__train_file_name = r"C:\Users\user\PycharmProjects\Ostec\venv\Result_Train.csv"
-        # self.__log_file_name = r"C:\Users\user\Desktop\Ostec\log\generate_logs_2"
+        self.__train_file_name = r"C:\Users\user\PycharmProjects\Ostec\venv\Result_Train.csv"
+        self.__log_file_name = r"C:\Users\user\Desktop\Ostec\log\generate_logs_2"
 
-        self.__log_file_name = tkinter.StringVar()
-        self.__train_file_name = tkinter.StringVar()
+        # self.__log_file_name = tkinter.StringVar()
+        # self.__train_file_name = tkinter.StringVar()
 
         train_file_frame = tkinter.Frame(self.__root)
         train_file_frame.pack(padx=10, pady=10, fill='x', expand=True)
@@ -841,7 +862,7 @@ class App:
         train_file_entry.focus()
 
         train_file_btn = Button(train_file_frame, text="Найти", width=10,
-                                command=partial(self.browse_dir, self.__train_file_name))
+                                command=partial(self.browse_files, self.__train_file_name))
         train_file_btn.pack(padx=5, fill='x', expand=True, side=tkinter.LEFT)
 
         log_file_frame = tkinter.Frame(self.__root)
@@ -866,7 +887,6 @@ class App:
         start_btn = Button(btn_frame, text="Начать", font=16, command=self.start)
         start_btn.pack(side=tkinter.RIGHT)
 
-
     def _onKeyRelease(self, event):
         ctrl = (event.state & 0x4) != 0
         if event.keycode == 88 and ctrl and event.keysym.lower() != "x":
@@ -880,7 +900,7 @@ class App:
 
     def start(self):
         try:
-            self.manager = Manager(self.__train_file_name.get(), self.__log_file_name.get())
+            self.manager = Manager(self.__train_file_name, self.__log_file_name)
         except Exception as error:
             showerror(
                 title='Ошибка',
@@ -919,6 +939,20 @@ class App:
 
         text_var.set(dir_name)
         return dir_name
+
+    def browse_files(self, text_var):
+        file_name = filedialog.askopenfilename(
+            title='Выберите нужный файл',
+            initialdir='/',
+            filetypes=[
+                    ("CSV File", "*.csv"),
+                    ("Text File", "*.txt"),
+                    ("All Files", "*.*")
+                ]
+            )
+
+        text_var.set(file_name)
+        return file_name
 
     def run(self):
         self.__root.mainloop()
