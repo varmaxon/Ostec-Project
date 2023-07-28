@@ -6,6 +6,7 @@ from scipy.signal import savgol_filter
 from statistics import fmean, stdev
 from tqdm import tqdm
 import tkinter as tk
+from sys import exit
 
 class LogFiles(object):
     def __init__(self, path):
@@ -25,7 +26,7 @@ class LogFiles(object):
                     self.__file_pres = os.path.join(root, 'Pressure0.txt')
                     cnt_check += 1
         except:
-            print("ERROR: ошибка при инициализации объекта LofFiles")
+            print("ERROR: ошибка при инициализации объекта LogFiles")
             input()
             exit()
 
@@ -56,12 +57,24 @@ class DFrame(object):
         self.__df_volt = pd.read_csv(volt, on_bad_lines='skip', sep='\t', encoding='utf-16')
         self.__df_pres = pd.read_csv(pres, on_bad_lines='skip', sep='\t', encoding='utf-16')
 
+        # уберем дробную часть во всех значениях столбца 'Time_ms'
+        self.__df_temp = self.__time_ms_to_int(self.__df_temp)
+        self.__df_curr = self.__time_ms_to_int(self.__df_curr)
+        self.__df_volt= self.__time_ms_to_int(self.__df_volt)
+        self.__df_pres = self.__time_ms_to_int(self.__df_pres)
+
+        # Удалим первый блок в каждом датафрейме
         self.__df_temp = self.__del_first_block(self.__df_temp)
         self.__df_curr = self.__del_first_block(self.__df_curr)
         self.__df_volt = self.__del_first_block(self.__df_volt)
         self.__df_pres = self.__del_first_block(self.__df_pres)
 
         self.__crossing()
+
+    def __time_ms_to_int(self, df):
+        df['Time_ms'] = list(map(int, df['Time_ms'].values))
+
+        return df
 
     def __del_first_block(self, df_file):
         len_first_block = 0
@@ -76,8 +89,8 @@ class DFrame(object):
 
 
     def __crossing(self):
-        df_I_2 = self.__df_curr.loc[self.__df_curr['VarName'] == 'DB21_RS485_Omix_Ow_Mera_RRG_Data_real panel_al{5}']
         df_I_1 = self.__df_curr.loc[self.__df_curr['VarName'] == 'DB21_RS485_Omix_Ow_Mera_RRG_Data_real panel_al{4}']
+        df_I_2 = self.__df_curr.loc[self.__df_curr['VarName'] == 'DB21_RS485_Omix_Ow_Mera_RRG_Data_real panel_al{5}']
         df_I_3 = self.__df_curr.loc[self.__df_curr['VarName'] == 'DB21_RS485_Omix_Ow_Mera_RRG_Data_real panel_al{6}']
 
         df_U_1 = self.__df_volt.loc[self.__df_volt['VarName'] == 'DB21_RS485_Omix_Ow_Mera_RRG_Data_real panel_al{1}']
@@ -92,6 +105,12 @@ class DFrame(object):
         df_T_3 = self.__df_temp.loc[self.__df_temp['VarName'] == 'DB21_RS485_Omix_Ow_Mera_RRG_Data_real pan_ow{3}']
         df_T_4 = self.__df_temp.loc[self.__df_temp['VarName'] == 'DB21_RS485_Omix_Ow_Mera_RRG_Data_real pan_ow{4}']
         df_T_8 = self.__df_temp.loc[self.__df_temp['VarName'] == 'DB21_RS485_Omix_Ow_Mera_RRG_Data_real pan_ow{8}']
+
+        # уберем все цифры после запятой в колонке Time_ms
+        # print(df_I_1)
+        # df_I_1['Time_ms'] = list(map(int, df_I_1['Time_ms'].values))
+        # print(df_I_1)
+        # exit()
 
         crossing_IU_1 = pd.merge(df_I_1, df_U_1, how='inner', on=['Time_ms']).drop(
             columns=['TimeString_y', 'VarName_x', 'VarName_y', 'Validity_x', 'Validity_y']).rename(
@@ -118,22 +137,6 @@ class DFrame(object):
             input()
             exit()
 
-        # "DB21_RS485_Omix_Ow_Mera_RRG_Data_real pan_ow{3}"    "2023-06-27 15:35:25"
-        # 30.5275
-        # 1
-        # 45104649591.5509
-        # "DB21_RS485_Omix_Ow_Mera_RRG_Data_real pan_ow{4}"    "2023-06-27 15:35:25"
-        # 26.4084
-        # 1
-        # 45104649591.5509
-        # "DB21_RS485_Omix_Ow_Mera_RRG_Data_real pan_ow{5}"    "2023-06-27 15:35:25"
-        # 27.28109
-        # 1
-        # 45104649591.5509
-        # "DB21_RS485_Omix_Ow_Mera_RRG_Data_real pan_ow{8}"    "2023-06-27 15:35:25"
-        # 27.7454
-        # 1
-        # 45104649591.5509
         cross_time = pd.merge(crossing_IU_1, self.df_T_u, how='inner', on=['Time_ms']).drop(columns=['TimeString_x'])
         cross_time = pd.merge(cross_time, df_Pr, how='inner', on=['Time_ms']).drop(columns=['VarName_x', 'TimeString_x',
                                                                                             'VarValue_x', 'Validity_x',
@@ -166,7 +169,6 @@ class DFrame(object):
         self.df_P3_T4 = pd.merge(crossing_IU_3, df_T_4, how='inner', on=['Time_ms']).drop(columns=['Validity', 'TimeString', 'VarName']).rename(columns={"VarValue": "T"})
         self.df_P3_T8 = pd.merge(crossing_IU_3, df_T_8, how='inner', on=['Time_ms']).drop(columns=['Validity', 'TimeString', 'VarName']).rename(columns={"VarValue": "T"})
 
-        print(len(self.df_P1_T1), len(self.df_P1_T2), len(self.df_P1_T3), len(self.df_P1_T4), len(self.df_P1_T8))
         if len(set([len(self.df_P1_T1), len(self.df_P1_T2), len(self.df_P1_T3), len(self.df_P1_T4), len(self.df_P1_T8),
                     len(self.df_P2_T1), len(self.df_P2_T2), len(self.df_P2_T3), len(self.df_P2_T4), len(self.df_P2_T8),
                     len(self.df_P3_T1), len(self.df_P3_T2), len(self.df_P3_T3), len(self.df_P3_T4), len(self.df_P3_T8)])) != 1:
@@ -270,7 +272,7 @@ class Calculations(DFrame):
 
         self.df_periods['Период (№)'] = range(1, len(periods) + 1)
         self.df_periods['Длительность (мин)'] = length_time
-        self.df_periods['Tmax (℃)'] = temp_max
+        self.df_periods['Tmax (C)'] = temp_max
         self.df_periods['Границы (мс)'] = periods
         self.df_periods['Служ.инф.'] = periods_k
         print("\nИнформация о включениях:")
@@ -286,7 +288,6 @@ class Calculations(DFrame):
         self.result_pieces = self.__complete_pieces()
 
         result_derivate = self.__calc_derivate()
-
 
         temp_1_mu_sigma = []
         temp_2_mu_sigma = []
@@ -467,7 +468,6 @@ class Calculations(DFrame):
         root = tk.Tk()
         root.geometry('360x300+100+200')
         root.title('Графики')
-        root.iconbitmap(default="C:/Users/user/Downloads/logo1.ico")  # Иконка
 
         period = tk.StringVar(value=1)  # начальное значение 1
         def set_begin_end(period_):
@@ -514,12 +514,12 @@ class Calculations(DFrame):
             cur_dir = os.path.abspath(os.curdir)
             df_result_train = pd.read_csv(cur_dir + '\Result_Train.csv', sep=',')
 
-            zones_values = [[[], [], [], [], [], [], [], []],
-                            [[], [], [], [], [], [], [], []],
-                            [[], [], [], [], [], [], [], []]]
-            zones_time = [[[], [], [], [], [], [], [], []],
-                          [[], [], [], [], [], [], [], []],
-                          [[], [], [], [], [], [], [], []]]
+            zones_values = [[[], [], [], [], [], [], [], [], []],
+                            [[], [], [], [], [], [], [], [], []],
+                            [[], [], [], [], [], [], [], [], []]]
+            zones_time = [[[], [], [], [], [], [], [], [], []],
+                          [[], [], [], [], [], [], [], [], []],
+                          [[], [], [], [], [], [], [], [], []]]
             print("\nПреобразуем данные для графиков...")
 
             cnt_arr = [0, 0, 0, 0, 0]
@@ -535,11 +535,11 @@ class Calculations(DFrame):
                 k_T.append(self.df_P1_T4.values[i + 1][-1] - self.df_P1_T4.values[i][-1])
                 k_T.append(self.df_P1_T8.values[i + 1][-1] - self.df_P1_T8.values[i][-1])
 
-                k_P.append(self.df_P1_T1.values[i + 1][1] - self.df_P1_T1.values[i][1])
-                k_P.append(self.df_P2_T1.values[i + 1][1] - self.df_P2_T1.values[i][1])
-                k_P.append(self.df_P3_T1.values[i + 1][1] - self.df_P3_T1.values[i][1])
+                k_P.append(self.df_P1_T1_spline.values[i + 1][1] - self.df_P1_T1_spline.values[i][1])
+                k_P.append(self.df_P2_T1_spline.values[i + 1][1] - self.df_P2_T1_spline.values[i][1])
+                k_P.append(self.df_P3_T1_spline.values[i + 1][1] - self.df_P3_T1_spline.values[i][1])
 
-                k_Pr = self.df_P1_Pr.values[i + 1][-1] - self.df_P1_Pr.values[i][-1]
+                k_Pr = self.df_P1_Pr_spline.values[i + 1][-1] - self.df_P1_Pr_spline.values[i][-1]
 
                 Temp = []
                 Time = []
@@ -751,25 +751,25 @@ class Calculations(DFrame):
                 plt.scatter(zones_time[2][4][:], zones_values[2][4][:], color='red', linewidths=1)
 
             if enabled_P1.get() == 1:
-                plt.plot(self.df_P1_T1['Time_ms'].values[begin:end], self.df_P1_T1_spline['P'].values[begin:end], color='black', linewidth=1, label="Literacy rate")
+                plt.plot(self.df_P1_T1_spline['Time_ms'].values[begin:end], self.df_P1_T1_spline['P'].values[begin:end], color='black', linewidth=1, label="Literacy rate")
                 plt.scatter(zones_time[0][5][:], zones_values[0][5][:], color='green', linewidths=1)
                 plt.scatter(zones_time[1][5][:], zones_values[1][5][:], color='yellow', linewidths=1)
                 plt.scatter(zones_time[2][5][:], zones_values[2][5][:], color='red', linewidths=1)
 
             if enabled_P2.get() == 1:
-                plt.plot(self.df_P1_T2['Time_ms'].values[begin:end], self.df_P2_T1_spline['P'].values[begin:end], color='black', linewidth=1, label="Literacy rate")
+                plt.plot(self.df_P2_T1_spline['Time_ms'].values[begin:end], self.df_P2_T1_spline['P'].values[begin:end], color='black', linewidth=1, label="Literacy rate")
                 plt.scatter(zones_time[0][6][:], zones_values[0][6][:], color='green', linewidths=1)
                 plt.scatter(zones_time[1][6][:], zones_values[1][6][:], color='yellow', linewidths=1)
                 plt.scatter(zones_time[2][6][:], zones_values[2][6][:], color='red', linewidths=1)
 
             if enabled_P3.get() == 1:
-                plt.plot(self.df_P1_T3['Time_ms'].values[begin:end], self.df_P3_T1_spline['P'].values[begin:end], color='black', linewidth=1, label="Literacy rate")
+                plt.plot(self.df_P3_T1_spline['Time_ms'].values[begin:end], self.df_P3_T1_spline['P'].values[begin:end], color='black', linewidth=1, label="Literacy rate")
                 plt.scatter(zones_time[0][7][:], zones_values[0][7][:], color='green', linewidths=1)
                 plt.scatter(zones_time[1][7][:], zones_values[1][7][:], color='yellow', linewidths=1)
                 plt.scatter(zones_time[2][7][:], zones_values[2][7][:], color='red', linewidths=1)
 
             if enabled_Pr.get() == 1:
-                plt.plot(self.df_P1_Pr['Time_ms'].values[begin:end], self.df_P1_Pr_spline['Pressure'].values[begin:end], color='black', linewidth=1, label="Literacy rate")
+                plt.plot(self.df_P1_Pr_spline['Time_ms'].values[begin:end], self.df_P1_Pr_spline['Pressure'].values[begin:end], color='black', linewidth=1, label="Literacy rate")
                 plt.scatter(zones_time[0][-1][:], zones_values[0][-1][:], color='green', linewidths=1)
                 plt.scatter(zones_time[1][-1][:], zones_values[1][-1][:], color='yellow', linewidths=1)
                 plt.scatter(zones_time[2][-1][:], zones_values[2][-1][:], color='red', linewidths=1)
@@ -781,18 +781,13 @@ class Calculations(DFrame):
                 plt.show()
 
 
-        def click_btn_exit():
-            exit()
-
         btn_calc = tk.Button(text="Построить", command=lambda: click_btn_calc(period)).grid(row=12, column=2)
-        btn_exit = tk.Button(text="Выход", command=click_btn_exit).grid(row=12, column=3)
+        btn_exit = tk.Button(text="Выход", command=exit).grid(row=12, column=3)
 
         root.mainloop()
 
 
-
 log_path = input("Введите путь к папке с Лог-Файлами:  ")
-# log_path = r'C:\Users\user\Desktop\Ostec\log\2logs'
 
 log_files = LogFiles(log_path)
 
