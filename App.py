@@ -11,6 +11,7 @@ from tkinter import *
 from tkinter import filedialog
 from tkinter.messagebox import showinfo, showerror
 import codecs
+from sys import exit
 
 
 def DFRead(file_name):
@@ -28,9 +29,15 @@ class Manager:
     def __init__(self, train_file_name, log_file_path):
         cur_dir = os.path.abspath(os.curdir)
 
-        with open(cur_dir + "\Predict_Errors.txt", mode="a+") as file_errors:
-            text = file_errors.read()
-            if len(text) == 0:
+        text = ""
+        try:
+            with open(cur_dir + "\Predict_Errors.txt", mode="r") as file_errors:
+                text = file_errors.read()
+        except:
+            pass
+
+        if len(text) == 0:
+            with open(cur_dir + "\Predict_Errors.txt", mode="w") as file_errors:
                 file_errors.write("ID_Error\tStatus\tTimeString\tT_ust\tParameter\n")
 
         self.__token = ""
@@ -57,11 +64,7 @@ class Manager:
                 message='Программа запущена'
             )
         except Exception as error:
-            showerror(
-                title='Ошибка',
-                message=f'Ошибка при запуске бота:\n{error}'
-            )
-
+            print(f"\nERROR: Ошибка при запуске бота\n{error}\n")
 
         self.__train_file = train_file_name
         df_result_train = pd.read_csv(self.__train_file, sep=',')
@@ -230,13 +233,16 @@ class Manager:
                                         self.period = file_period.read().split(' ')[0]
                                     if t_pair != "PS4":
                                         for client in self.bot.array_id:
-                                            self.bot.context.send_message(chat_id=int(client),
+                                            try:
+                                                self.bot.context.send_message(chat_id=int(client),
                                                                        text=f"#W_{t_pair}_{self.period}_{self.id_message_w[item + 5]}\n"
                                                                             f"{date}\n"
                                                                             f"✅ <b>Warning canceled</b>: Мощность по датчику №{item + 1}\n"
                                                                             f"T℃ уставки: {self.last_values[-1][0][-1]}\n"
                                                                             f"Мощность:    {self.last_values[-1][1][item]}",
                                                                        parse_mode='HTML')
+                                            except:
+                                                pass
                                         with open(cur_dir + "\Predict_Errors.txt", mode="a") as file_errors:
                                             file_errors.write(f"W_{t_pair}_{self.period}_{self.id_message_w[item + 5]}\t"
                                                               f"0\t"
@@ -249,13 +255,16 @@ class Manager:
 
                                     else:
                                         for client in self.bot.array_id:
-                                            self.bot.context.send_message(chat_id=int(client),
+                                            try:
+                                                self.bot.context.send_message(chat_id=int(client),
                                                                        text=f"#W_{t_pair}_{self.period}_{self.id_message_w[item + 5]}\n"
                                                                             f"{date}\n"
                                                                             f"✅ <b>Warning canceled</b>: Давление\n"
                                                                             f"T℃ уставки: {self.last_values[-1][0][-1]}\n"
                                                                             f"Давление:    {self.last_values[-1][2][3]}",
                                                                        parse_mode='HTML')
+                                            except:
+                                                pass
 
                                         with open(cur_dir + "\Predict_Errors.txt", mode="a") as file_errors:
                                             file_errors.write(f"W_{t_pair}_{self.period}_{self.id_message_w[item + 5]}\t"
@@ -272,13 +281,16 @@ class Manager:
                                         self.period = file_period.read().split(' ')[0]
                                     if t_pair != "PS4":
                                         for client in self.bot.array_id:
-                                            self.bot.context.send_message(chat_id=int(client),
+                                            try:
+                                                self.bot.context.send_message(chat_id=int(client),
                                                                        text=f"#E_{t_pair}_{self.period}_{self.id_message_e[item + 5]}\n"
                                                                             f"{date}\n"
                                                                             f"✅ <b>Error canceled</b>: Мощность по датчику №{item + 1}\n"
                                                                             f"T℃ уставки: {self.last_values[-1][0][-1]}\n"
                                                                             f"Мощность:    {self.last_values[-1][1][item]}",
                                                                        parse_mode='HTML')
+                                            except:
+                                                pass
 
                                         with open(cur_dir + "\Predict_Errors.txt", mode="a") as file_errors:
                                             file_errors.write(f"E_{t_pair}_{self.period}_{self.id_message_e[item + 5]}\t"
@@ -292,13 +304,16 @@ class Manager:
 
                                     else:
                                         for client in self.bot.array_id:
-                                            self.bot.context.send_message(chat_id=int(client),
+                                            try:
+                                                self.bot.context.send_message(chat_id=int(client),
                                                                        text=f"#E_{t_pair}_{self.period}_{self.id_message_e[item + 5]}\n"
                                                                             f"{date}\n"
                                                                             f"✅ <b>Error canceled</b>: Давление\n"
                                                                             f"T℃ уставки: {self.last_values[-1][0][-1]}\n"
                                                                             f"Давление:    {self.last_values[-1][2][3]}",
                                                                        parse_mode='HTML')
+                                            except:
+                                                pass
 
                                         with open(cur_dir + "\Predict_Errors.txt", mode="a") as file_errors:
                                             file_errors.write(f"E_{t_pair}_{self.period}_{self.id_message_e[item + 5]}\t"
@@ -316,13 +331,16 @@ class Manager:
                                         self.period = file_period.read().split(' ')[0]
                                     if t_pair != "PS4":
                                         for client in self.bot.array_id:
-                                            self.bot.context.send_message(chat_id=int(client),
+                                            try:
+                                                self.bot.context.send_message(chat_id=int(client),
                                                                        text=f"#W_{t_pair}_{self.period}_{self.id_message_w[item + 5]}\n"
                                                                             f"{date}\n"
                                                                             f"⚠ <b>Warning</b>: Мощность по датчику №{item + 1}\n"
                                                                             f"T℃ уставки: {self.last_values[-1][0][-1]}\n"
                                                                             f"Мощность:    {self.last_values[-1][1][item]}",
                                                                        parse_mode='HTML')
+                                            except:
+                                                pass
 
                                         with open(cur_dir + "\Predict_Errors.txt", mode="a") as file_errors:
                                             file_errors.write(f"W_{t_pair}_{self.period}_{self.id_message_w[item + 5]}\t"
@@ -336,13 +354,16 @@ class Manager:
 
                                     else:
                                         for client in self.bot.array_id:
-                                            self.bot.context.send_message(chat_id=int(client),
+                                            try:
+                                                self.bot.context.send_message(chat_id=int(client),
                                                                        text=f"#W_{t_pair}_{self.period}_{self.id_message_w[item + 5]}\n"
                                                                             f"{date}\n"
                                                                             f"⚠ <b>Warning</b>: Давление\n"
                                                                             f"T℃ уставки: {self.last_values[-1][0][-1]}\n"
                                                                             f"Давление:    {self.last_values[-1][2][3]}",
                                                                        parse_mode='HTML')
+                                            except:
+                                                pass
 
                                         with open(cur_dir + "\Predict_Errors.txt", mode="a") as file_errors:
                                             file_errors.write(f"W_{t_pair}_{self.period}_{self.id_message_w[item + 5]}\t"
@@ -361,13 +382,16 @@ class Manager:
                                     self.period = file_period.read().split(' ')[0]
                                 if t_pair != "PS4":
                                     for client in self.bot.array_id:
-                                        self.bot.context.send_message(chat_id=int(client),
+                                        try:
+                                            self.bot.context.send_message(chat_id=int(client),
                                                                    text=f"#E_{t_pair}_{self.period}_{self.id_message_e[item + 5]}\n"
                                                                         f"{date}\n"
                                                                         f"❗ <b>Error</b>: Мощность по датчику №{item + 1}\n"
                                                                         f"T℃ уставки: {self.last_values[-1][0][-1]}\n"
                                                                         f"Мощность:    {self.last_values[-1][1][item]}",
                                                                    parse_mode='HTML')
+                                        except:
+                                            pass
 
                                     with open(cur_dir + "\Predict_Errors.txt", mode="a") as file_errors:
                                         file_errors.write(f"E_{t_pair}_{self.period}_{self.id_message_e[item + 5]}\t"
@@ -381,13 +405,16 @@ class Manager:
 
                                 else:
                                     for client in self.bot.array_id:
-                                        self.bot.context.send_message(chat_id=int(client),
+                                        try:
+                                            self.bot.context.send_message(chat_id=int(client),
                                                                    text=f"#E_{t_pair}_{self.period}_{self.id_message_e[item + 5]}\n"
                                                                         f"{date}\n"
                                                                         f"❗ <b>Error</b>: Давление\n"
                                                                         f"T℃ уставки: {self.last_values[-1][0][-1]}\n"
                                                                         f"Давление:    {self.last_values[-1][2][3]}",
                                                                    parse_mode='HTML')
+                                        except:
+                                            pass
 
                                     with open(cur_dir + "\Predict_Errors.txt", mode="a") as file_errors:
                                         file_errors.write(f"E_{t_pair}_{self.period}_{self.id_message_e[item + 5]}\t"
@@ -409,13 +436,16 @@ class Manager:
                                         self.period = file_period.read().split(' ')[0]
                                     if t_pair != "PS4":
                                         for client in self.bot.array_id:
-                                            self.bot.context.send_message(chat_id=int(client),
+                                            try:
+                                                self.bot.context.send_message(chat_id=int(client),
                                                                        text=f"#W_{t_pair}_{self.period}_{self.id_message_w[item + 5]}\n"
                                                                             f"{date}\n"
                                                                             f"✅ <b>Warning canceled</b>: Мощность по датчику №{item + 1}\n"
                                                                             f"T℃ уставки: {self.last_values[-1][0][-1]}\n"
                                                                             f"Мощность:    {self.last_values[-1][1][item]}",
                                                                        parse_mode='HTML')
+                                            except:
+                                                pass
 
                                         with open(cur_dir + "\Predict_Errors.txt", mode="a") as file_errors:
                                             file_errors.write(f"W_{t_pair}_{self.period}_{self.id_message_w[item + 5]}\t"
@@ -429,13 +459,16 @@ class Manager:
 
                                     else:
                                         for client in self.bot.array_id:
-                                            self.bot.context.send_message(chat_id=int(client),
+                                            try:
+                                                self.bot.context.send_message(chat_id=int(client),
                                                                        text=f"#W_{t_pair}_{self.period}_{self.id_message_w[item + 5]}\n"
                                                                             f"{date}\n"
                                                                             f"✅ <b>Warning canceled</b>: Давление\n"
                                                                             f"T℃ уставки: {self.last_values[-1][0][-1]}\n"
                                                                             f"Давление:    {self.last_values[-1][2][3]}",
                                                                        parse_mode='HTML')
+                                            except:
+                                                pass
 
                                         with open(cur_dir + "\Predict_Errors.txt", mode="a") as file_errors:
                                             file_errors.write(f"W_{t_pair}_{self.period}_{self.id_message_w[item + 5]}\t"
@@ -452,13 +485,16 @@ class Manager:
                                         self.period = file_period.read().split(' ')[0]
                                     if t_pair != "PS4":
                                         for client in self.bot.array_id:
-                                            self.bot.context.send_message(chat_id=int(client),
+                                            try:
+                                                self.bot.context.send_message(chat_id=int(client),
                                                                        text=f"#E_{t_pair}_{self.period}_{self.id_message_e[item + 5]}\n"
                                                                             f"{date}\n"
                                                                             f"✅ <b>Error canceled</b>: Мощность по датчику №{item + 1}\n"
                                                                             f"T℃ уставки: {self.last_values[-1][0][-1]}\n"
                                                                             f"Мощность:    {self.last_values[-1][1][item]}",
                                                                        parse_mode='HTML')
+                                            except:
+                                                pass
 
                                         with open(cur_dir + "\Predict_Errors.txt", mode="a") as file_errors:
                                             file_errors.write(f"E_{t_pair}_{self.period}_{self.id_message_e[item + 5]}\t"
@@ -472,13 +508,16 @@ class Manager:
 
                                     else:
                                         for client in self.bot.array_id:
-                                            self.bot.context.send_message(chat_id=int(client),
+                                            try:
+                                                self.bot.context.send_message(chat_id=int(client),
                                                                        text=f"#E_{t_pair}_{self.period}_{self.id_message_e[item + 5]}\n"
                                                                             f"{date}\n"
                                                                             f"✅ <b>Error canceled</b>: Давление\n"
                                                                             f"T℃ уставки: {self.last_values[-1][0][-1]}\n"
                                                                             f"Давление:    {self.last_values[-1][2][3]}",
                                                                        parse_mode='HTML')
+                                            except:
+                                                pass
 
                                         with open(cur_dir + "\Predict_Errors.txt", mode="a") as file_errors:
                                             file_errors.write(f"E_{t_pair}_{self.period}_{self.id_message_e[item + 5]}\t"
@@ -496,13 +535,16 @@ class Manager:
                                         self.period = file_period.read().split(' ')[0]
                                     if t_pair != "PS4":
                                         for client in self.bot.array_id:
-                                            self.bot.context.send_message(chat_id=int(client),
+                                            try:
+                                                self.bot.context.send_message(chat_id=int(client),
                                                                        text=f"#W_{t_pair}_{self.period}_{self.id_message_w[item + 5]}\n"
                                                                             f"{date}\n"
                                                                             f"⚠ <b>Warning</b>: Мощность по датчику №{item + 1}\n"
                                                                             f"T℃ уставки: {self.last_values[-1][0][-1]}\n"
                                                                             f"Мощность:    {self.last_values[-1][1][item]}",
                                                                        parse_mode='HTML')
+                                            except:
+                                                pass
 
                                         with open(cur_dir + "\Predict_Errors.txt", mode="a") as file_errors:
                                             file_errors.write(f"W_{t_pair}_{self.period}_{self.id_message_w[item + 5]}\t"
@@ -516,13 +558,16 @@ class Manager:
 
                                     else:
                                         for client in self.bot.array_id:
-                                            self.bot.context.send_message(chat_id=int(client),
+                                            try:
+                                                self.bot.context.send_message(chat_id=int(client),
                                                                        text=f"#W_{t_pair}_{self.period}_{self.id_message_w[item + 5]}\n"
                                                                             f"{date}\n"
                                                                             f"⚠ <b>Warning</b>: Давление\n"
                                                                             f"T℃ уставки: {self.last_values[-1][0][-1]}\n"
                                                                             f"Давление:    {self.last_values[-1][2][3]}",
                                                                        parse_mode='HTML')
+                                            except:
+                                                pass
 
                                         with open(cur_dir + "\Predict_Errors.txt", mode="a") as file_errors:
                                             file_errors.write(f"W_{t_pair}_{self.period}_{self.id_message_w[item + 5]}\t"
@@ -541,13 +586,16 @@ class Manager:
                                     self.period = file_period.read().split(' ')[0]
                                 if t_pair != "PS4":
                                     for client in self.bot.array_id:
-                                        self.bot.context.send_message(chat_id=int(client),
+                                        try:
+                                            self.bot.context.send_message(chat_id=int(client),
                                                                    text=f"#E_{t_pair}_{self.period}_{self.id_message_e[item + 5]}\n"
                                                                         f"{date}\n"
                                                                         f"❗ <b>Error</b>: Мощность по датчику №{item + 1}\n"
                                                                         f"T℃ уставки: {self.last_values[-1][0][-1]}\n"
                                                                         f"Мощность:    {self.last_values[-1][1][item]}",
                                                                    parse_mode='HTML')
+                                        except:
+                                            pass
 
                                     with open(cur_dir + "\Predict_Errors.txt", mode="a") as file_errors:
                                         file_errors.write(f"E_{t_pair}_{self.period}_{self.id_message_e[item + 5]}\t"
@@ -561,13 +609,16 @@ class Manager:
 
                                 else:
                                     for client in self.bot.array_id:
-                                        self.bot.context.send_message(chat_id=int(client),
+                                        try:
+                                            self.bot.context.send_message(chat_id=int(client),
                                                                    text=f"#E_{t_pair}_{self.period}_{self.id_message_e[item + 5]}\n"
                                                                         f"{date}\n"
                                                                         f"❗ <b>Error</b>: Давление\n"
                                                                         f"T℃ уставки: {self.last_values[-1][0][-1]}\n"
                                                                         f"Давление:    {self.last_values[-1][2][3]}",
                                                                    parse_mode='HTML')
+                                        except:
+                                            pass
 
                                     with open(cur_dir + "\Predict_Errors.txt", mode="a") as file_errors:
                                         file_errors.write(f"E_{t_pair}_{self.period}_{self.id_message_e[item + 5]}\t"
@@ -653,13 +704,16 @@ class Manager:
                         if not self.fl_e[i]:
                             self.id_message_e[i] += 1
                             for client in self.bot.array_id:
-                                self.bot.context.send_message(chat_id=int(client),
+                                try:
+                                    self.bot.context.send_message(chat_id=int(client),
                                                            text=f"#E_{t_pair}_{self.period}_{self.id_message_e[i]}\n"
                                                                 f"{date}\n"
                                                                 f"❗ <b>Error</b>: термопара №{i + 1}\n"
                                                                 f"T℃ уставки:   {self.last_values[-1][0][-1]}\n"
                                                                 f"T℃ термопары: {self.last_values[-1][0][i]}",
                                                        parse_mode='HTML')
+                                except:
+                                    pass
 
                             with open(cur_dir + "\Predict_Errors.txt", mode="a") as file_errors:
                                 file_errors.write(f"E_{t_pair}_{self.period}_{self.id_message_e[i]}\t"
@@ -673,13 +727,16 @@ class Manager:
                     else:
                         if self.fl_w[i]:
                             for client in self.bot.array_id:
-                                self.bot.context.send_message(chat_id=int(client),
+                                try:
+                                    self.bot.context.send_message(chat_id=int(client),
                                                            text=f"#W_{t_pair}_{self.period}_{self.id_message_w[i]}\n"
                                                                 f"{date}\n"
                                                                 f"✅ <b>Warning canceled</b>: термопара №{i + 1}\n"
                                                                 f"T℃ уставки:   {self.last_values[-1][0][-1]}\n"
                                                                 f"T℃ термопары: {self.last_values[-1][0][i]}\n",
                                                        parse_mode='HTML')
+                                except:
+                                    pass
 
                             with open(cur_dir + "\Predict_Errors.txt", mode="a") as file_errors:
                                 file_errors.write(f"W_{t_pair}_{self.period}_{self.id_message_w[i]}\t"
@@ -692,13 +749,16 @@ class Manager:
                             self.fl_w[i] = False
                         if self.fl_e[i]:
                             for client in self.bot.array_id:
-                                self.bot.context.send_message(chat_id=int(client),
+                                try:
+                                    self.bot.context.send_message(chat_id=int(client),
                                                            text=f"#E_{t_pair}_{self.period}_{self.id_message_e[i]}\n"
                                                                 f"{date}\n"
                                                                 f"✅ <b>Error</b>: термопара №{i + 1}\n"
                                                                 f"T℃ уставки:   {self.last_values[-1][0][-1]}\n"
                                                                 f"T℃ термопары: {self.last_values[-1][0][i]}",
                                                        parse_mode='HTML')
+                                except:
+                                    pass
 
                             with open(cur_dir + "\Predict_Errors.txt", mode="a") as file_errors:
                                 file_errors.write(f"E_{t_pair}_{self.period}_{self.id_message_e[i]}\t"
@@ -822,9 +882,12 @@ class Bot:
                     for i in self.array_id:
                         id_file.write(i + "\n")
 
-                context.bot.send_message(chat_id=update.effective_chat.id,
+                try:
+                    context.bot.send_message(chat_id=update.effective_chat.id,
                                          text='Приложение запущено!',
                                          reply_markup=self.__start_markup)
+                except:
+                    pass
 
         elif update.message.text == 'Стоп':
             try:
@@ -846,13 +909,19 @@ class Bot:
                     for i in self.array_id:
                         id_file.write(i + "\n")
 
-                context.bot.send_message(chat_id=update.effective_chat.id,
+                try:
+                    context.bot.send_message(chat_id=update.effective_chat.id,
                                          text='Бот не будет присылать Вам предупреждения, пока Вы снова не нажмёте "Старт"!',
                                          reply_markup=self.__start_markup)
+                except:
+                    pass
             else:
-                context.bot.send_message(chat_id=update.effective_chat.id,
+                try:
+                    context.bot.send_message(chat_id=update.effective_chat.id,
                                          text='Для начала работы нажмите кнопку "Старт" или введите /start',
                                          reply_markup=self.__start_markup)
+                except:
+                    pass
 
     def start(self, update, context):
         self.context = context.bot
@@ -874,11 +943,14 @@ class Bot:
                 for i in self.array_id:
                     id_file.write(i + "\n")
 
-            context.bot.send_message(chat_id=update.effective_chat.id,
+            try:
+                context.bot.send_message(chat_id=update.effective_chat.id,
                                  text='<b>Добро пожаловать в сервис для мониторинга состояния печи.</b>\n\n'
                                   'Бот будет предупреждать о возможных авариях.',
                                  parse_mode='HTML',
                                  reply_markup=self.__start_markup)
+            except:
+                pass
 
     def handler(self):
         self.__dispatcher.add_handler(CommandHandler('start', self.start))
@@ -976,11 +1048,7 @@ class App:
                     self.manager.block_analysis(temp_block, curr_block, volt_block, pres_block)
                     cur_time_ms = new_time_ms
             except Exception as error:
-                showerror(
-                    title='Ошибка',
-                    message=f'Ошибка работы программы:\n{error}'
-                )
-                break
+                continue
 
     def browse_dir(self, text_var):
         dir_name = filedialog.askdirectory(
